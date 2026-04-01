@@ -41,6 +41,8 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.fragment)
 
+    implementation(libs.glide.v4120)
+    implementation(libs.gson)
 
 
 }

@@ -1,13 +1,11 @@
 package com.example.mytvxml
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.leanback.app.RowsSupportFragment
 import androidx.leanback.widget.ArrayObjectAdapter
 import androidx.leanback.widget.FocusHighlight
+import androidx.leanback.widget.HeaderItem
+import androidx.leanback.widget.ListRow
 import androidx.leanback.widget.ListRowPresenter
 
 
@@ -22,13 +20,21 @@ class ListFragment : RowsSupportFragment() {
 
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    fun bindData(dataList: DataModel) {
+        rootAdapter.clear()
+        dataList.result.forEach { result ->
+            val arrayObjectAdapter = ArrayObjectAdapter(ItemPresenter())
 
-        return inflater.inflate(R.layout.fragment_list, container, false)
+            result.details.forEach {
+                arrayObjectAdapter.add(it)
+            }
+
+            val headerItem = HeaderItem(result.title)
+            val listRow = ListRow(headerItem, arrayObjectAdapter)
+            rootAdapter.add(listRow)
+        }
     }
+
 
 
 }

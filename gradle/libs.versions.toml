@@ -1,8 +1,10 @@
 [versions]
 agp = "9.1.0"
 constraintlayout = "2.2.1"
-coreKtx = "1.18.0"
+coreKtx = "1.12.0"
 fragment = "1.8.9"
+glideVersion = "4.12.0"
+gson = "2.13.2"
 leanback = "1.2.0"
 glide = "4.11.0"
 
@@ -12,6 +14,8 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-fragment = { module = "androidx.fragment:fragment", version.ref = "fragment" }
 androidx-leanback = { group = "androidx.leanback", name = "leanback", version.ref = "leanback" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+glide-v4120 = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
