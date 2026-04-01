@@ -1,28 +1,28 @@
 package com.example.mytvxml
 
 import android.os.Bundle
+import android.view.View
 import androidx.leanback.app.RowsSupportFragment
-import androidx.leanback.widget.ArrayObjectAdapter
-import androidx.leanback.widget.FocusHighlight
-import androidx.leanback.widget.HeaderItem
-import androidx.leanback.widget.ListRow
-import androidx.leanback.widget.ListRowPresenter
+import androidx.leanback.widget.*
 
 
 class ListFragment : RowsSupportFragment() {
 
-    private var rootAdapter: ArrayObjectAdapter= ArrayObjectAdapter(ListRowPresenter(FocusHighlight.ZOOM_FACTOR_MEDIUM))
+    private var itemSelectedListener: ((DataModel.Result.Detail) -> Unit)? = null
+    private var rootAdapter: ArrayObjectAdapter =
+        ArrayObjectAdapter(ListRowPresenter(FocusHighlight.ZOOM_FACTOR_MEDIUM))
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-       adapter= rootAdapter
+        adapter = rootAdapter
 
+        onItemViewSelectedListener = ItemViewSelectedListener()
     }
 
     fun bindData(dataList: DataModel) {
-        rootAdapter.clear()
-        dataList.result.forEach { result ->
+
+        dataList.result.forEachIndexed { index, result ->
             val arrayObjectAdapter = ArrayObjectAdapter(ItemPresenter())
 
             result.details.forEach {
@@ -32,9 +32,28 @@ class ListFragment : RowsSupportFragment() {
             val headerItem = HeaderItem(result.title)
             val listRow = ListRow(headerItem, arrayObjectAdapter)
             rootAdapter.add(listRow)
+
         }
+
     }
 
+    fun setOnContentSelectedListener(listener : (DataModel.Result.Detail) -> Unit){
+        this.itemSelectedListener = listener
+    }
 
+    inner class ItemViewSelectedListener : OnItemViewSelectedListener{
+        override fun onItemSelected(
+            itemViewHolder: Presenter.ViewHolder?,
+            item: Any?,
+            rowViewHolder: RowPresenter.ViewHolder?,
+            row: Row?
+        ) {
+            if (item is DataModel.Result.Detail){
+                itemSelectedListener?.invoke(item)
+            }
+
+        }
+
+    }
 
 }
