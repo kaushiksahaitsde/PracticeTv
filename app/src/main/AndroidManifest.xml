@@ -3,6 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions"/>
+
 
     <uses-feature
         android:name="android.hardware.touchscreen"
@@ -31,6 +38,32 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".service.MediaTrackerService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="TRP media analytics tracking"/>
+
+        </service>
+
+        <!--
+            NotificationListenerService — PRIMARY permission source for MediaSession access.
+            The user enables this in: Settings → Special App Access → Notification Access.
+            On TVs without that settings screen, grant via ADB:
+              adb shell cmd notification allow_listener \
+                com.example.mytvxml/com.example.mytvxml.service.TrpNotificationListenerService
+        -->
+        <service
+            android:name=".service.TrpNotificationListenerService"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
 
     </application>
 
