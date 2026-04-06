@@ -77,7 +77,7 @@ class MediaTrackerService : Service() {
             "com.erosnow",
             "com.mxplayer.android",
             "com.spotify.tv.android",
-            "com.apple.atve.androidtv.appletv",
+            "com.apple.atve.androidtv.appletv",//zee5,sunnext,sonyliv,prime
         )
     }
 
@@ -93,6 +93,9 @@ class MediaTrackerService : Service() {
 
     // Fires the moment a new app starts/stops a media session
     private var sessionsChangedListener: MediaSessionManager.OnActiveSessionsChangedListener? = null
+
+    // Option 3 — MediaBrowserCompat explorer (zero permissions, zero ADB)
+    private lateinit var mediaBrowserExplorer: MediaBrowserExplorer
 
     // ─────────────────────────────────────────────────────────
     // SERVICE LIFECYCLE
@@ -116,6 +119,11 @@ class MediaTrackerService : Service() {
         setupSessionChangeListener()   // instant notification on session list changes
         startPolling()                 // 5-second safety-net poll
         scanActiveSessions()           // immediate first scan
+
+        // Option 3 — MediaBrowserCompat (zero permissions, zero ADB)
+        // Runs in parallel with Options 1 & 2. Logs under TRP_Browser tag.
+        mediaBrowserExplorer = MediaBrowserExplorer(this)
+        mediaBrowserExplorer.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -132,6 +140,7 @@ class MediaTrackerService : Service() {
             mediaSessionManager?.removeOnActiveSessionsChangedListener(it)
         }
         registeredCallbacks.clear()
+        if (::mediaBrowserExplorer.isInitialized) mediaBrowserExplorer.stop()
         super.onDestroy()
     }
 

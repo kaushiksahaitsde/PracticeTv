@@ -11,6 +11,17 @@
         tools:ignore="ProtectedPermissions"/>
 
 
+    <!--
+        Android 11+ package visibility: needed for MediaBrowserExplorer (Option 3)
+        to query which installed apps expose a MediaBrowserService.
+        Without this, PackageManager.queryIntentServices() returns empty on API 30+.
+    -->
+    <queries>
+        <intent>
+            <action android:name="android.media.browse.MediaBrowserService" />
+        </intent>
+    </queries>
+
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />

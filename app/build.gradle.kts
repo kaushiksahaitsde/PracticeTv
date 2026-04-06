@@ -40,6 +40,8 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.fragment)
+    // MediaBrowserCompat — needed for Option 3 (no-permission browser connection to OTT apps)
+    implementation(libs.androidx.media)
 
     implementation(libs.glide.v4120)
     implementation(libs.gson)
