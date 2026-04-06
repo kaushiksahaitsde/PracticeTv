@@ -23,5 +23,16 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "MyTvXml"
+
+// ─────────────────────────────────────────────────────────────────────
+// Module structure:
+//   :tracker  — shared Android library (MediaTrackerService + NLS + MediaBrowserExplorer)
+//   :app      — Mobile phone app  (simple 2-button UI, full permission redirect)
+//   :apptv    — Android TV app    (movie browser UI, TV-optimised, D-pad ready)
+//
+// To run either app in Android Studio:
+//   Run → Edit Configurations → Select "app" or "apptv"
+// ─────────────────────────────────────────────────────────────────────
+include(":tracker")
 include(":app")
- 
+include(":apptv")

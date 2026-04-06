@@ -1,0 +1,74 @@
+-- Merging decision tree log ---
+manifest
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:7:1-61:12
+INJECTED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:7:1-61:12
+	package
+		INJECTED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml
+	xmlns:tools
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:8:5-51
+	xmlns:android
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:7:11-69
+uses-permission#android.permission.FOREGROUND_SERVICE
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:11:5-77
+	android:name
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:11:22-74
+uses-permission#android.permission.FOREGROUND_SERVICE_SPECIAL_USE
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:12:5-89
+	android:name
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:12:22-86
+uses-permission#android.permission.POST_NOTIFICATIONS
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:13:5-77
+	android:name
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:13:22-74
+uses-permission#android.permission.PACKAGE_USAGE_STATS
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:14:5-16:47
+	tools:ignore
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:16:9-44
+	android:name
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:15:9-62
+queries
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:23:5-27:15
+intent#action:name:android.media.browse.MediaBrowserService
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:24:9-26:18
+action#android.media.browse.MediaBrowserService
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:25:13-79
+	android:name
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:25:21-76
+application
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:29:5-59:19
+service#com.example.mytvxml.service.MediaTrackerService
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:36:9-43:19
+	android:exported
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:38:13-37
+	android:foregroundServiceType
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:39:13-55
+	android:name
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:37:13-75
+property#android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:40:13-42:64
+	android:value
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:42:17-61
+	android:name
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:41:17-76
+service#com.example.mytvxml.service.TrpNotificationListenerService
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:50:9-57:19
+	android:exported
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:52:13-36
+	android:permission
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:53:13-87
+	android:name
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:51:13-86
+intent-filter#action:name:android.service.notification.NotificationListenerService
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:54:13-56:29
+action#android.service.notification.NotificationListenerService
+ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:55:17-99
+	android:name
+		ADDED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml:55:25-96
+uses-sdk
+INJECTED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml
+INJECTED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\AndroidManifest.xml

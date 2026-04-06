@@ -1,0 +1,8 @@
+com.example.mytvxml.tracker-pngs-0 C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\build\generated\res\pngs\debug
+com.example.mytvxml.tracker-updated_navigation_xml-1 C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\build\generated\updated_navigation_xml\debug
+com.example.mytvxml.tracker-mergeDebugResources-2 C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\build\intermediates\incremental\debug\mergeDebugResources\merged.dir
+com.example.mytvxml.tracker-mergeDebugResources-3 C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\build\intermediates\incremental\debug\mergeDebugResources\stripped.dir
+com.example.mytvxml.tracker-debug-4 C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\build\intermediates\merged_res\debug\mergeDebugResources
+com.example.mytvxml.tracker-debug-5 C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\build\intermediates\packaged_res\debug\packageDebugResources
+com.example.mytvxml.tracker-debug-6 C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\debug\res
+com.example.mytvxml.tracker-main-7 C:\Users\kaushik.saha\AndroidStudioProjects\MyTvXml\tracker\src\main\res

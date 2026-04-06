@@ -1,4 +1,4 @@
 <resources>
-
-    <style name="Theme.MyTvXml" parent="@style/Theme.Leanback" />
+    <!-- Mobile theme: standard no-ActionBar style for a full-screen tracker UI -->
+    <style name="Theme.MyTvXml" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>

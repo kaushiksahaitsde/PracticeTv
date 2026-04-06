@@ -4,6 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.mytvxml"
+
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -16,7 +17,6 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
     }
 
     buildTypes {
@@ -28,6 +28,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -35,16 +36,11 @@ android {
 }
 
 dependencies {
+    // Shared tracker library (MediaTrackerService + NLS + MediaBrowserExplorer)
+    implementation(project(":tracker"))
+
+    // Mobile UI essentials
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.leanback)
-    implementation(libs.glide)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.fragment)
-    // MediaBrowserCompat — needed for Option 3 (no-permission browser connection to OTT apps)
-    implementation(libs.androidx.media)
-
-    implementation(libs.glide.v4120)
-    implementation(libs.gson)
-
-
 }
