@@ -11,26 +11,16 @@ import android.service.notification.StatusBarNotification
 import android.util.Log
 
 /**
- * TrpNotificationListenerService
- *
- * PURPOSE 1 — MediaSession access gate (Option 1 in MediaTrackerService)
- *   When enabled by the user (Settings → Notification Access), MediaTrackerService
- *   can call getActiveSessions(this component). No ADB needed.
- *
- * PURPOSE 2 — Option 2: Extract MediaSession.Token from notification extras
- *   Every media-style notification embeds the session token in its extras.
- *   We extract it, build a MediaController directly, and read full metadata.
- *   Zero extra permissions beyond NLS.
- *
- * Logcat tags:
- *   TRP_NotifListener  — Purpose 1 logs
- *   TRP_NotifToken     — Option 2 token extraction logs
+ * Serves dual purpose: permission gate for MediaSession access (NLS component registration),
+ * and secondary extraction of MediaSession.Token embedded in OTT media notifications.
+ * Token extraction builds a MediaController directly without requiring getActiveSessions().
  */
 class TrpNotificationListenerService : NotificationListenerService() {
 
     companion object {
         private const val TAG_NOTIF  = "TRP_NotifListener"
         private const val TAG_TOKEN  = "TRP_NotifToken"
+        // Standard extras key Android embeds in MediaStyle notifications
         private const val EXTRA_SESSION_TOKEN = "android.media.session.MediaSession.Token"
 
         val OTT_PACKAGES = setOf(
@@ -73,7 +63,7 @@ class TrpNotificationListenerService : NotificationListenerService() {
         val packageName = sbn.packageName
         if (packageName !in OTT_PACKAGES) return
 
-        val extras = sbn.notification.extras
+        val extras       = sbn.notification.extras
         val notifTitle   = extras.getCharSequence("android.title")?.toString()   ?: "Unknown"
         val notifText    = extras.getCharSequence("android.text")?.toString()    ?: ""
         val notifSubText = extras.getCharSequence("android.subText")?.toString() ?: ""

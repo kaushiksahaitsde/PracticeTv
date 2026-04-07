@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Tracker library manifest.
-    These entries are AUTOMATICALLY MERGED into both :app (mobile) and :apptv (TV)
-    via Android's manifest merger — no need to re-declare them in each app module.
--->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissions required by the tracker services -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -15,11 +9,7 @@
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
 
-    <!--
-        Android 11+ package visibility: required for MediaBrowserExplorer (Option 3)
-        to discover which installed apps expose a MediaBrowserService.
-        Merged into consuming app automatically.
-    -->
+    <!-- Required for MediaBrowserExplorer PackageManager query on API 30+ -->
     <queries>
         <intent>
             <action android:name="android.media.browse.MediaBrowserService" />
@@ -28,11 +18,6 @@
 
     <application>
 
-        <!--
-            MediaTrackerService — foreground service that reads MediaSessions
-            and runs the 3-option TRP tracking strategy.
-            Started/stopped from the host app's UI.
-        -->
         <service
             android:name="com.example.mytvxml.service.MediaTrackerService"
             android:exported="false"
@@ -42,11 +27,6 @@
                 android:value="TRP media analytics tracking" />
         </service>
 
-        <!--
-            TrpNotificationListenerService — Option 1 (primary) and Option 2 (token extraction).
-            User enables in: Settings → Special App Access → Notification Access.
-            Without this enabled, the tracker falls back to MEDIA_CONTENT_CONTROL (ADB).
-        -->
         <service
             android:name="com.example.mytvxml.service.TrpNotificationListenerService"
             android:exported="true"

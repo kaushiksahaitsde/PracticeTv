@@ -1,9 +1,7 @@
 package com.example.mytvxml
 
-// import android.app.AppOpsManager   // commented — Usage Access check disabled for now
 import android.content.Intent
 import android.os.Bundle
-// import android.os.Process           // commented — Usage Access check disabled for now
 import android.provider.Settings
 import android.util.Log
 import android.widget.Button
@@ -19,29 +17,21 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 
-/**
- * Android TV MainActivity — movie browser + TRP tracking controls.
- *
- * TV-specific notes:
- *   • Uses FragmentActivity (Leanback-compatible, no ActionBar)
- *   • Buttons are D-pad navigable (focusable, focusableInTouchMode)
- *   • Settings redirect is crash-safe (many TV ROMs lack certain settings screens)
- *   • If TV has no Notification Access settings screen → shows ADB fallback
- */
+/** TV entry point. Hosts the content browser and exposes tracker start/stop controls. */
 class MainActivity : FragmentActivity() {
+
+
 
     companion object {
         private const val TAG = "TRP_MainActivity_TV"
     }
 
-    // ── TV UI views ──────────────────────────────────────────
     lateinit var txtTitle: TextView
     lateinit var txtSubTitle: TextView
     lateinit var txtDescription: TextView
     lateinit var imgBanner: ImageView
     lateinit var listFragment: ListFragment
 
-    // ── Tracking controls ────────────────────────────────────
     private lateinit var btnStartTracking: Button
     private lateinit var btnStopTracking: Button
     private lateinit var txtTrackingStatus: TextView
@@ -70,13 +60,9 @@ class MainActivity : FragmentActivity() {
         btnStopTracking   = findViewById(R.id.btn_stop_tracking)
         txtTrackingStatus = findViewById(R.id.txt_tracking_status)
 
-        btnStartTracking.setOnClickListener { startTracking() }
+        btnStartTracking.setOnClickListener {startTracking()   }
         btnStopTracking.setOnClickListener  { stopTracking()  }
     }
-
-    // ─────────────────────────────────────────────────────────
-    // PERMISSION CHECKS
-    // ─────────────────────────────────────────────────────────
 
     private fun isNotificationListenerEnabled(): Boolean {
         return try {
@@ -88,8 +74,6 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    // Usage Access check disabled for now — only NLS matters for this R&D phase.
-    // Uncomment when foreground-app detection (checkForegroundApp) needs to be tested.
     /*
     private fun isUsageAccessGranted(): Boolean {
         return try {
@@ -103,12 +87,10 @@ class MainActivity : FragmentActivity() {
     }
     */
 
-    // ─────────────────────────────────────────────────────────
-    // CRASH-SAFE SETTINGS NAVIGATION
-    // Many TV ROMs don't have standard settings screens.
-    // We try multiple intents in order and never crash.
-    // ─────────────────────────────────────────────────────────
-
+    /**
+     * Tries settings intents in priority order. TV ROMs often omit specific settings screens,
+     * so we fall back gracefully rather than letting the app crash.
+     */
     private fun openNotificationListenerSettings() {
         val intents = listOf(
             Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"),
@@ -124,8 +106,6 @@ class MainActivity : FragmentActivity() {
         Toast.makeText(this, "Enable via ADB:\n$adbCmd", Toast.LENGTH_LONG).show()
     }
 
-    // Usage Access settings navigation disabled for now.
-    // Uncomment when foreground-app detection is needed:
     /*
     private fun openUsageAccessSettings() {
         val intents = listOf(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS), Intent(Settings.ACTION_SETTINGS))
@@ -138,9 +118,57 @@ class MainActivity : FragmentActivity() {
     }
     */
 
-    // ─────────────────────────────────────────────────────────
-    // TRACKING CONTROL
-    // ─────────────────────────────────────────────────────────
+
+    private fun tryEnableNotificationListenerViaShell():Boolean{
+        val component = "$packageName/com.example.mytvxml.service.TrpNotificationListenerService"
+       // val cmd = "cmd notification allow_listener $component"
+        val cmd= "getprop"
+        // root first try
+
+        val suResult=runShellCommand(cmd, useSu = true)
+        Log.i(TAG, "allow_listener via su -> exit=${suResult.exitCode}, err=${suResult.stderr}, out=${suResult.stdout}")
+        if (suResult.exitCode == 0 && isNotificationListenerEnabled()) return true
+
+        // 2) Try non-root shell
+        val shResult = runShellCommand(cmd, useSu = false)
+        Log.i(TAG, "allow_listener via sh -> exit=${shResult.exitCode}, err=${shResult.stderr}, out=${shResult.stdout}")
+        return shResult.exitCode == 0 && isNotificationListenerEnabled()
+    }
+
+    private fun runShellCommand(command: String, useSu: Boolean): ShellResult{
+
+        val fullCmd= if(useSu) arrayOf("su","-c",command) else arrayOf("sh", "-c", command)
+
+        return try{
+            val process= Runtime.getRuntime().exec(fullCmd)
+
+            val watcher = Thread {
+                try {
+                    Thread.sleep(5000)
+                    process.destroy()
+                } catch (_: Throwable) {
+                }
+            }
+            watcher.isDaemon = true
+            watcher.start()
+
+            val exitCode = process.waitFor()
+            ShellResult(
+                exitCode = exitCode,
+                stdout = BufferedReader(InputStreamReader(process.inputStream)).use { it.readText() }.trim(),
+                stderr = BufferedReader(InputStreamReader(process.errorStream)).use { it.readText() }.trim(),
+                command = (if (useSu) "su -c " else "sh -c ") + command
+            )
+
+        } catch (t: Throwable){
+            ShellResult(
+                exitCode = -1,
+                stdout = "",
+                stderr = "${t.javaClass.simpleName}: ${t.message}",
+                command = (if (useSu) "su -c " else "sh -c ") + command
+            )
+        }
+    }
 
     private fun startTracking() {
         if (!isNotificationListenerEnabled()) {
@@ -179,10 +207,6 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    // ─────────────────────────────────────────────────────────
-    // BANNER
-    // ─────────────────────────────────────────────────────────
-
     fun updateBanner(detail: DataModel.Result.Detail) {
         txtTitle.text       = detail.title
         txtDescription.text = detail.overview
@@ -191,3 +215,4 @@ class MainActivity : FragmentActivity() {
             .into(imgBanner)
     }
 }
+

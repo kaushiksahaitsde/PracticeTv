@@ -3,8 +3,6 @@ plugins {
 }
 
 android {
-    // namespace = the package for the generated R class.
-    // Keep matching the source code package so R.layout.* etc. work without changes.
     namespace = "com.example.mytvxml"
 
     compileSdk {
@@ -14,7 +12,6 @@ android {
     }
 
     defaultConfig {
-        // Different applicationId so both :app and :apptv can be installed side-by-side.
         applicationId = "com.example.mytvxml.tv"
         minSdk = 21
         targetSdk = 36
@@ -39,29 +36,21 @@ android {
 
     sourceSets {
         getByName("main") {
-            // Reuse the movies.json from :app/assets during migration.
-            // Once stable, copy movies.json into apptv/src/main/assets/ and remove this.
             assets.srcDirs("${rootProject.projectDir}/app/src/main/assets")
-
-            // Reuse mipmap launcher icons from :app during migration.
-            // Once stable, copy the mipmap-* folders into apptv/src/main/res/ and remove this.
             res.srcDirs(
                 "${rootProject.projectDir}/app/src/main/res/mipmap-hdpi",
                 "${rootProject.projectDir}/app/src/main/res/mipmap-mdpi",
                 "${rootProject.projectDir}/app/src/main/res/mipmap-xhdpi",
                 "${rootProject.projectDir}/app/src/main/res/mipmap-xxhdpi",
                 "${rootProject.projectDir}/app/src/main/res/mipmap-xxxhdpi",
-                "src/main/res"  // keep the module's own res directory
+                "src/main/res"
             )
         }
     }
 }
 
 dependencies {
-    // Shared tracker library (MediaTrackerService + NLS + MediaBrowserExplorer)
     implementation(project(":tracker"))
-
-    // TV-specific UI
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.leanback)
     implementation(libs.androidx.constraintlayout)

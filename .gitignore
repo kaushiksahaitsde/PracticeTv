@@ -1,15 +1,38 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+#-----OS files -----
+
+.Ds_Store
+Thumbs.db
+
+#-----Gradle/Android Studio files -----
+.gradle/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# ---- Local machine specific ----
 local.properties
+*.keystore
+*.jks
+
+# ---- IntelliJ / Android Studio ----
+
+*.iml
+.idea/caches/
+.idea/libraries/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/deploymentTargetSelector.xml
+
+# ---- Firebender local chat state (machine-local) ----
+.idea/firebender/
+
+# ---- Kotlin / Java generated logs ----
+*.log
+
+# ---- Optional: keep shared IDE settings only (if you want to version some .idea files) ----
+# .idea/
+# !.idea/codeStyles/
+# !.idea/runConfigurations/

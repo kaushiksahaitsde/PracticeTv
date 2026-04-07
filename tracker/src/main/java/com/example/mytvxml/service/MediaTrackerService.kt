@@ -20,35 +20,9 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 
 /**
- * MediaTrackerService — Foreground service that tracks what other apps are playing.
- *
- * ════════════════════════════════════════════════════════
- * HOW IT READS MEDIA SESSIONS — TWO APPROACHES (both tried)
- * ════════════════════════════════════════════════════════
- *
- * APPROACH 1 — NotificationListenerService (NLS)  -- FIRST CHOICE
- * ─────────────────────────────────────────────────────────
- * We pass our TrpNotificationListenerService ComponentName to
- * getActiveSessions(). Android gives us full access IF:
- *   • The user has gone to Settings → Notification Access → enabled our app
- *     (end-user can do this themselves — no ADB needed)
- *
- *   OR (on TVs where that settings screen doesn't exist):
- *   • adb shell cmd notification allow_listener \
- *       <packageName>/com.example.mytvxml.service.TrpNotificationListenerService
- *
- * APPROACH 2 — Direct null call  [AUTOMATIC FALLBACK]
- * ─────────────────────────────────────────────────────────
- * If Approach 1 throws a SecurityException (NLS not enabled), we
- * automatically try getActiveSessions(null).
- * This requires the MEDIA_CONTENT_CONTROL system permission, granted via:
- *   adb shell pm grant <packageName> android.permission.MEDIA_CONTENT_CONTROL
- *
- * ════════════════════════════════════════════════════════
- * TRACKING STRATEGY — both run in parallel
- * ════════════════════════════════════════════════════════
- *   A. POLLING    — scans every 5 seconds (safety net)
- *   B. CALLBACKS  — fires instantly on any play/pause/title change
+ * Foreground service that reads active MediaSessions across installed OTT apps.
+ * Uses NLS as the primary access path with MEDIA_CONTENT_CONTROL as automatic fallback.
+ * Combines polling (5s interval) with event callbacks for complete session coverage.
  */
 class MediaTrackerService : Service() {
 
@@ -58,9 +32,7 @@ class MediaTrackerService : Service() {
         private const val CHANNEL_ID = "trp_tracker_channel"
         private const val POLL_INTERVAL_MS = 5000L
 
-        // OTT package names — used only for foreground-app filter
-        // to avoid spamming logs with launcher/home-screen events.
-        val OTT_PACKAGES = setOf(
+       /* val OTT_PACKAGES = setOf(
             "in.startv.hotstar",
             "com.hotstar.android",
             "com.google.android.youtube",
@@ -78,28 +50,18 @@ class MediaTrackerService : Service() {
             "com.mxplayer.android",
             "com.spotify.tv.android",
             "com.apple.atve.androidtv.appletv",
+        )*/
+        val OTT_PACKAGES = setOf(
+            "in.startv.hotstar",
+            "com.hotstar.android",
         )
     }
 
-    // ─────────────────────────────────────────────────────────
-    // FIELDS
-    // ─────────────────────────────────────────────────────────
-
     private val handler = Handler(Looper.getMainLooper())
     private var mediaSessionManager: MediaSessionManager? = null
-
-    // Key = package name → prevents registering the same callback twice
     private val registeredCallbacks = mutableMapOf<String, MediaController.Callback>()
-
-    // Fires the moment a new app starts/stops a media session
     private var sessionsChangedListener: MediaSessionManager.OnActiveSessionsChangedListener? = null
-
-    // Option 3 — MediaBrowserCompat explorer (zero permissions, zero ADB)
     private lateinit var mediaBrowserExplorer: MediaBrowserExplorer
-
-    // ─────────────────────────────────────────────────────────
-    // SERVICE LIFECYCLE
-    // ─────────────────────────────────────────────────────────
 
     override fun onCreate() {
         super.onCreate()
@@ -107,7 +69,7 @@ class MediaTrackerService : Service() {
         Log.i(TAG, "  TRP TRACKER SERVICE CREATED")
         Log.i(TAG, "═══════════════════════════════════════")
 
-        startForegroundNotification()                          // must happen within 5s
+        startForegroundNotification()
 
         mediaSessionManager = getSystemService(MEDIA_SESSION_SERVICE) as? MediaSessionManager
         if (mediaSessionManager == null) {
@@ -116,19 +78,17 @@ class MediaTrackerService : Service() {
             return
         }
 
-        setupSessionChangeListener()   // instant notification on session list changes
-        startPolling()                 // 5-second safety-net poll
-        scanActiveSessions()           // immediate first scan
+        setupSessionChangeListener()
+        startPolling()
+        scanActiveSessions()
 
-        // Option 3 — MediaBrowserCompat (zero permissions, zero ADB)
-        // Runs in parallel with Options 1 & 2. Logs under TRP_Browser tag.
         mediaBrowserExplorer = MediaBrowserExplorer(this)
         mediaBrowserExplorer.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i(TAG, "onStartCommand — service running")
-        return START_STICKY  // auto-restart if killed due to low memory
+        return START_STICKY
     }
 
     override fun onDestroy() {
@@ -146,13 +106,11 @@ class MediaTrackerService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    // ─────────────────────────────────────────────────────────
-    // CORE: GET ACTIVE MEDIA CONTROLLERS (hybrid: NLS → null fallback)
-    // ─────────────────────────────────────────────────────────
-
+    /**
+     * Returns active MediaControllers via NLS component; falls back to null (MEDIA_CONTENT_CONTROL)
+     * on SecurityException. Returns empty list if neither permission is available.
+     */
     private fun getActiveControllers(): List<MediaController> {
-
-        // ── APPROACH 1: NotificationListenerService ──────────
         try {
             val nlsComponent = ComponentName(this, TrpNotificationListenerService::class.java)
             val controllers = mediaSessionManager?.getActiveSessions(nlsComponent)
@@ -168,7 +126,6 @@ class MediaTrackerService : Service() {
             Log.e(TAG, "❌ [NLS] Unexpected error: ${e.message}")
         }
 
-        // ── APPROACH 2: Direct null call (MEDIA_CONTENT_CONTROL) ──
         try {
             val controllers = mediaSessionManager?.getActiveSessions(null)
             if (controllers != null) {
@@ -185,29 +142,25 @@ class MediaTrackerService : Service() {
         return emptyList()
     }
 
-    // ─────────────────────────────────────────────────────────
-    // SESSION CHANGE LISTENER
-    // ─────────────────────────────────────────────────────────
-
     private fun setupSessionChangeListener() {
         sessionsChangedListener = MediaSessionManager.OnActiveSessionsChangedListener { controllers ->
             Log.i(TAG, "━━━ Sessions changed — ${controllers?.size ?: 0} active ━━━")
             controllers?.let { handleActiveSessions(it) }
         }
 
-        var listenerRegistered = false
+        var registered = false
         try {
             val nlsComponent = ComponentName(this, TrpNotificationListenerService::class.java)
             mediaSessionManager?.addOnActiveSessionsChangedListener(sessionsChangedListener!!, nlsComponent)
             Log.i(TAG, "✅ [NLS] Session change listener registered via NLS")
-            listenerRegistered = true
+            registered = true
         } catch (_: SecurityException) {
             Log.w(TAG, "⚠️ [NLS] Cannot register listener — trying null fallback...")
         } catch (_: Exception) {
             Log.e(TAG, "❌ [NLS] Unexpected error registering listener")
         }
 
-        if (!listenerRegistered) {
+        if (!registered) {
             try {
                 mediaSessionManager?.addOnActiveSessionsChangedListener(sessionsChangedListener!!, null)
                 Log.i(TAG, "✅ [DIRECT] Session change listener registered via MEDIA_CONTENT_CONTROL")
@@ -220,15 +173,11 @@ class MediaTrackerService : Service() {
         }
     }
 
-    // ─────────────────────────────────────────────────────────
-    // POLLING
-    // ─────────────────────────────────────────────────────────
-
     private fun startPolling() {
         handler.post(object : Runnable {
             override fun run() {
                 scanActiveSessions()
-                checkForegroundApp()
+             //   checkForegroundApp()
                 handler.postDelayed(this, POLL_INTERVAL_MS)
             }
         })
@@ -239,10 +188,6 @@ class MediaTrackerService : Service() {
         if (controllers.isEmpty()) return
         handleActiveSessions(controllers)
     }
-
-    // ─────────────────────────────────────────────────────────
-    // HANDLE SESSIONS
-    // ─────────────────────────────────────────────────────────
 
     private fun handleActiveSessions(controllers: List<MediaController>) {
         for (controller in controllers) {
@@ -288,10 +233,6 @@ class MediaTrackerService : Service() {
         }
     }
 
-    // ─────────────────────────────────────────────────────────
-    // REAL-TIME CALLBACKS
-    // ─────────────────────────────────────────────────────────
-
     private fun registerCallbackIfNeeded(controller: MediaController, packageName: String) {
         if (registeredCallbacks.containsKey(packageName)) return
 
@@ -329,10 +270,7 @@ class MediaTrackerService : Service() {
         }
     }
 
-    // ─────────────────────────────────────────────────────────
-    // FOREGROUND APP DETECTION
-    // ─────────────────────────────────────────────────────────
-
+    /** Resolves the most recently foregrounded OTT app using UsageStats event stream. */
     private fun checkForegroundApp() {
         try {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) return
@@ -361,10 +299,6 @@ class MediaTrackerService : Service() {
         }
     }
 
-    // ─────────────────────────────────────────────────────────
-    // FOREGROUND NOTIFICATION
-    // ─────────────────────────────────────────────────────────
-
     private fun startForegroundNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(CHANNEL_ID, "TRP Tracker", NotificationManager.IMPORTANCE_LOW).apply {
@@ -385,10 +319,6 @@ class MediaTrackerService : Service() {
         )
         Log.i(TAG, "✅ Foreground notification shown")
     }
-
-    // ─────────────────────────────────────────────────────────
-    // HELPERS
-    // ─────────────────────────────────────────────────────────
 
     @Suppress("DEPRECATION")
     private fun readExtras(state: PlaybackState?): String {

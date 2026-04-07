@@ -14,15 +14,9 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 
 /**
- * MediaBrowserExplorer — Option 3 (Zero permissions, zero ADB)
- *
- * Discovers which OTT apps expose a MediaBrowserService via PackageManager,
- * then connects to each one using MediaBrowserCompat.
- *
- * Apps that cooperate → we get a MediaSession.Token → full metadata.
- * Apps that reject    → logged as REJECTED, no crash.
- *
- * Logcat filter: TRP_Browser
+ * Queries PackageManager for all apps exposing MediaBrowserService, then attempts
+ * a MediaBrowserCompat connection to each. No permissions required.
+ * Apps that accept the connection yield a full MediaControllerCompat with real-time callbacks.
  */
 class MediaBrowserExplorer(private val context: Context) {
 
@@ -32,7 +26,7 @@ class MediaBrowserExplorer(private val context: Context) {
     }
 
     private val handler = Handler(Looper.getMainLooper())
-    // Keep STRONG references — GC will disconnect browsers if we don't hold them
+    // Strong references required — GC will sever browser connections otherwise
     private val activeBrowsers = mutableListOf<MediaBrowserCompat>()
 
     fun start() {
@@ -42,8 +36,9 @@ class MediaBrowserExplorer(private val context: Context) {
         Log.i(TAG, "═══════════════════════════════════════════════")
 
         val allServices = try {
-            val browseIntent = Intent(BROWSE_SERVICE_ACTION)
-            context.packageManager.queryIntentServices(browseIntent, PackageManager.GET_META_DATA)
+            context.packageManager.queryIntentServices(
+                Intent(BROWSE_SERVICE_ACTION), PackageManager.GET_META_DATA
+            )
         } catch (e: Exception) {
             Log.e(TAG, "❌ PackageManager query failed: ${e.message}")
             return
@@ -54,14 +49,9 @@ class MediaBrowserExplorer(private val context: Context) {
             Log.i(TAG, "   Found: ${it.serviceInfo.packageName} / ${it.serviceInfo.name}")
         }
 
-        // ── R&D MODE: OTT filter DISABLED ─────────────────────
-        // Connecting to ALL apps to discover which ones accept connections.
-        // Re-enable the filter below once R&D is done:
-        //
-        // val ottServices = allServices.filter {
-        //     it.serviceInfo.packageName in MediaTrackerService.OTT_PACKAGES
-        // }
-        val ottServices = allServices   // ← try everything installed
+        // Scoped to OTT packages in production; currently probing all services for discovery.
+        // val ottServices = allServices.filter { it.serviceInfo.packageName in MediaTrackerService.OTT_PACKAGES }
+        val ottServices = allServices
 
         if (ottServices.isEmpty()) {
             Log.w(TAG, "⚠️ No app on this device exposes a MediaBrowserService at all.")

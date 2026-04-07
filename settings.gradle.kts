@@ -19,20 +19,18 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven{ url = uri("https://jitpack.io")}
     }
 }
 
 rootProject.name = "MyTvXml"
 
-// ─────────────────────────────────────────────────────────────────────
-// Module structure:
-//   :tracker  — shared Android library (MediaTrackerService + NLS + MediaBrowserExplorer)
-//   :app      — Mobile phone app  (simple 2-button UI, full permission redirect)
-//   :apptv    — Android TV app    (movie browser UI, TV-optimised, D-pad ready)
-//
-// To run either app in Android Studio:
-//   Run → Edit Configurations → Select "app" or "apptv"
-// ─────────────────────────────────────────────────────────────────────
+// :tracker  — shared analytics library (services, session management)
+// :app      — mobile client
+// :apptv    — Android TV client
 include(":tracker")
 include(":app")
 include(":apptv")
+
+include(":core")
+include(":companion")
